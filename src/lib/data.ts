@@ -17,13 +17,29 @@ export const ASSETS = {
   community: 'https://www.terravia-bsdcity.id/assets/clusters/catilo/gallery/castilo-teravia-bsd-3.webp'
 } as const;
 
+// Free stock photography for questionnaire choices, separate from project imagery.
+const QUIZ_IMAGES = {
+  career: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  family: 'https://images.pexels.com/photos/8945223/pexels-photo-8945223.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  wellness: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  dining: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  nature: 'https://images.pexels.com/photos/1671325/pexels-photo-1671325.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  shopping: 'https://images.pexels.com/photos/5632402/pexels-photo-5632402.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  social: 'https://images.pexels.com/photos/1850595/pexels-photo-1850595.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  active: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  urban: 'https://images.pexels.com/photos/466685/pexels-photo-466685.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  green: 'https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  integrated: 'https://images.pexels.com/photos/2306281/pexels-photo-2306281.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  private: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=1200',
+} as const;
+
 export const LIFESTYLES = [
-  {id:'career',title:'Career & Business',description:'Karier dan konektivitas',icon:'briefcase-business',image:ASSETS.office},
-  {id:'family',title:'Family & Education',description:'Keluarga jadi prioritas',icon:'graduation-cap',image:ASSETS.vyorelleNature},
-  {id:'wellness',title:'Health & Wellness',description:'Aktif dan seimbang',icon:'activity',image:ASSETS.community},
-  {id:'dining',title:'Dining & Entertainment',description:'Selalu ada cerita baru',icon:'coffee',image:ASSETS.castilo},
-  {id:'nature',title:'Nature & Relaxation',description:'Hidup lebih dekat alam',icon:'trees',image:ASSETS.navapark},
-  {id:'shopping',title:'Shopping & Convenience',description:'Semua dalam jangkauan',icon:'shopping-bag',image:ASSETS.hiera}
+  {id:'career',title:'Career & Business',description:'Karier dan konektivitas',icon:'briefcase-business',image:QUIZ_IMAGES.career},
+  {id:'family',title:'Family & Education',description:'Keluarga jadi prioritas',icon:'graduation-cap',image:QUIZ_IMAGES.family},
+  {id:'wellness',title:'Health & Wellness',description:'Aktif dan seimbang',icon:'activity',image:QUIZ_IMAGES.wellness},
+  {id:'dining',title:'Dining & Entertainment',description:'Selalu ada cerita baru',icon:'coffee',image:QUIZ_IMAGES.dining},
+  {id:'nature',title:'Nature & Relaxation',description:'Hidup lebih dekat alam',icon:'trees',image:QUIZ_IMAGES.nature},
+  {id:'shopping',title:'Shopping & Convenience',description:'Semua dalam jangkauan',icon:'shopping-bag',image:QUIZ_IMAGES.shopping}
 ] as const;
 export const DESTINATIONS = [
   {id:'office',title:'Office / Business District',icon:'briefcase-business'},
@@ -44,11 +60,11 @@ export const PRIORITIES = [
   {id:'dining',title:'Dining & Entertainment',icon:'coffee'}
 ] as const;
 export const WEEKENDS = [
-  {id:'social',title:'The Social Explorer',subtitle:'Coffee, conversations & city strolls',image:ASSETS.castilo},
-  {id:'family',title:'The Family Companion',subtitle:'A little more time for the people you love',image:ASSETS.vyorelleNature},
-  {id:'active',title:'The Active Adventurer',subtitle:'Move, explore & feel alive',image:ASSETS.community},
-  {id:'urban',title:'The Urban Enthusiast',subtitle:'Discover what the city has to offer',image:ASSETS.office},
-  {id:'nature',title:'The Nature Seeker',subtitle:'Take it slow, breathe it all in',image:ASSETS.navapark}
+  {id:'social',title:'The Social Explorer',subtitle:'Coffee, conversations & city strolls',image:QUIZ_IMAGES.social},
+  {id:'family',title:'The Family Companion',subtitle:'A little more time for the people you love',image:QUIZ_IMAGES.family},
+  {id:'active',title:'The Active Adventurer',subtitle:'Move, explore & feel alive',image:QUIZ_IMAGES.active},
+  {id:'urban',title:'The Urban Enthusiast',subtitle:'Discover what the city has to offer',image:QUIZ_IMAGES.urban},
+  {id:'nature',title:'The Nature Seeker',subtitle:'Take it slow, breathe it all in',image:QUIZ_IMAGES.nature}
 ] as const;
 export const TRAVEL = [
   {id:'under15',title:'Under 15 minutes',short:'<15 min'},
@@ -58,10 +74,10 @@ export const TRAVEL = [
   {id:'notConcern',title:'Distance is not a major concern',short:'Flexible'}
 ] as const;
 export const ENVIRONMENTS = [
-  {id:'urban',title:'Urban & Connected',description:'Everything moves with your rhythm.',image:ASSETS.office},
-  {id:'green',title:'Green & Peaceful',description:'More fresh air. A gentler pace.',image:ASSETS.navapark},
-  {id:'integrated',title:'Integrated & Convenient',description:'A thoughtful balance of daily needs.',image:ASSETS.castilo},
-  {id:'private',title:'Private & Exclusive',description:'Personal space, elevated living.',image:ASSETS.monard}
+  {id:'urban',title:'Urban & Connected',description:'Everything moves with your rhythm.',image:QUIZ_IMAGES.urban},
+  {id:'green',title:'Green & Peaceful',description:'More fresh air. A gentler pace.',image:QUIZ_IMAGES.green},
+  {id:'integrated',title:'Integrated & Convenient',description:'A thoughtful balance of daily needs.',image:QUIZ_IMAGES.integrated},
+  {id:'private',title:'Private & Exclusive',description:'Personal space, elevated living.',image:QUIZ_IMAGES.private}
 ] as const;
 
 export type Criterion = 'workplace' | 'education' | 'lifestyle' | 'environment' | 'connectivity';

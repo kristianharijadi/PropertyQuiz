@@ -46,7 +46,7 @@ function RemoteImage({src,alt='',className='',style}:{src:string;alt?:string;cla
 function Brand({inverse=false}:{inverse?:boolean}){
  const [logoFailed,setLogoFailed]=useState(false);
  return <div className={`brand ${inverse?'inverse':''}`} aria-label="Sinar Mas Land Property Match">
-  {!logoFailed?<img src={ASSETS.logo} alt="Sinar Mas Land" onError={()=>setLogoFailed(true)} className="brand-logo"/>:
+  {!logoFailed?<img src={inverse?'/sinar-mas-land-white.png':ASSETS.logo} alt="Sinar Mas Land" onError={()=>setLogoFailed(true)} className="brand-logo"/>:
    <span className="brand-fallback"><span className="brand-mark">S</span><span>sinarmas<span className="brand-land">land</span></span></span>}
   <span className="brand-divider"/><span className="brand-product">THE PROPERTY MATCH</span>
  </div>;
