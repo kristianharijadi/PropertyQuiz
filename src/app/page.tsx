@@ -60,8 +60,8 @@ function BigButton({children,onClick,disabled=false,light=false,type='button'}:{
 function StageFrame({children,step,onBack,onNext,canNext,helper}:{children:React.ReactNode;step:number;onBack:()=>void;onNext:()=>void;canNext:boolean;helper?:React.ReactNode}){
  return <div className="stage-shell">
   <header className="stage-header"><Brand/><div className="header-right"><span className="header-index">THE LIFESTYLE EDITION</span><span className="header-help"><Clock3 size={16}/> ABOUT 60 SECONDS</span></div></header>
-  <div className="stage-progress"><div className="progress-caption"><span>DISCOVER YOUR MATCH</span><span>QUESTION {String(step).padStart(2,'0')} <i>/</i> 06</span></div><div className="progress-rail">{Array.from({length:6},(_,i)=><div key={i} className={`progress-piece ${i<step?'filled':''}`}/>)}</div></div>
-  <div className="question-heading"><div className="eyebrow"><span className="eyebrow-line"/> YOUR LIFESTYLE, YOUR WAY</div><h1>{STEP_TITLES[step]}</h1><p>{STEP_SUB[step]}</p></div>
+  <div className="stage-progress"><div className="progress-caption"><span>YOUR DISCOVERY JOURNEY</span><span>LEVEL {String(step).padStart(2,'0')} <i>/</i> 06</span></div><div className="progress-rail">{Array.from({length:6},(_,i)=><div key={i} className={`progress-piece ${i<step?'filled':''}`}/>)}</div></div>
+  <div className="question-heading"><div className="eyebrow"><Sparkles size={15}/> MISSION {String(step).padStart(2,'0')} · YOUR LIFESTYLE, YOUR WAY</div><h1>{STEP_TITLES[step]}</h1><p>{STEP_SUB[step]}</p></div>
   <div className="question-content">{children}</div>
   <footer className="stage-footer"><button className="back-button" onClick={onBack}><ArrowLeft size={21}/> Back</button><div className="footer-hint">{helper||<><MousePointer2 size={17}/> Tap an option to select</>}</div><BigButton onClick={onNext} disabled={!canNext}>Continue <span className="btn-subtext">{String(step).padStart(2,'0')}/06</span></BigButton></footer>
  </div>;
@@ -145,19 +145,39 @@ function EnvironmentScreen({value,onSelect}:{value:string;onSelect:(v:string)=>v
 }
 function LeadScreen({lead,setLead,submit,errors,onBack,busy,error}:{lead:LeadForm;setLead:(v:LeadForm)=>void;submit:()=>void;errors:Partial<Record<keyof LeadForm,string>>;onBack:()=>void;busy:boolean;error:string}){
  const update=(key:keyof LeadForm,val:string|boolean)=>setLead({...lead,[key]:val});
+ const [activeField,setActiveField]=useState<'name'|'whatsapp'|'email'|null>(null);
+ const [shift,setShift]=useState(false);
+ const [symbols,setSymbols]=useState(false);
+ const inputRefs=useRef<Partial<Record<'name'|'whatsapp'|'email',HTMLInputElement|null>>>({});
+ const fieldNames={name:'Full Name',whatsapp:'WhatsApp Number',email:'Email'};
+ function keyboardInput(key:string){
+  if(!activeField)return;
+  const input=inputRefs.current[activeField];
+  const value=lead[activeField];
+  let start=input?.selectionStart??value.length,end=input?.selectionEnd??value.length;
+  if(key==='backspace'&&start===end&&start>0)start--;
+  const inserted=key==='backspace'?'':key;
+  update(activeField,value.slice(0,start)+inserted+value.slice(end));
+  requestAnimationFrame(()=>{input?.focus();input?.setSelectionRange(start+inserted.length,start+inserted.length)});
+ }
+ const rows=activeField==='whatsapp'?['123','456','789','+0-']:symbols?['1234567890','@#$%&*()-','_+=/!?']:['qwertyuiop','asdfghjkl','zxcvbnm'];
  return <div className="lead-shell"><header className="stage-header"><Brand/><DemoLabel/></header><div className="lead-content"><div className="lead-story"><div className="eyebrow light-eyebrow"><span className="eyebrow-line"/> YOUR MATCH IS ALMOST READY</div><h1>Your lifestyle match <em>is ready.</em></h1><p>We&apos;ve discovered what matters to you. One last step to unlock your personalized property selection.</p><div className="lead-preview"><span>01 — 06</span><div className="lead-preview-bar">{Array.from({length:6},(_,i)=><span key={i}/>)}</div><strong>YOUR LIFESTYLE DISCOVERED <Check size={19}/></strong></div><RemoteImage src={ASSETS.navapark} alt="NavaPark BSD City" className="lead-photo"/></div>
   <div className="lead-form-panel"><div className="lead-form-heading"><span className="micro-label">UNLOCK YOUR RESULTS / 01</span><h2>Let&apos;s make it personal.</h2><p>Tell us how we can help you find the right place.</p></div>
    <form onSubmit={e=>{e.preventDefault();submit()}} noValidate>
-    <div className="form-row"><div className="form-group"><label htmlFor="full-name">Full Name <b>*</b></label><input id="full-name" autoComplete="name" placeholder="Your full name" value={lead.name} onChange={e=>update('name',e.target.value)}/>{errors.name&&<span className="field-error">{errors.name}</span>}</div>
-    <div className="form-group"><label htmlFor="whatsapp">WhatsApp Number <b>*</b></label><input id="whatsapp" type="tel" inputMode="tel" placeholder="08xx xxxx xxxx" value={lead.whatsapp} onChange={e=>update('whatsapp',e.target.value)}/>{errors.whatsapp&&<span className="field-error">{errors.whatsapp}</span>}</div></div>
-    <div className="form-row"><div className="form-group"><label htmlFor="email">Email <span>(Optional)</span></label><input id="email" type="email" placeholder="you@email.com" value={lead.email} onChange={e=>update('email',e.target.value)}/>{errors.email&&<span className="field-error">{errors.email}</span>}</div>
+    <div className="form-row"><div className="form-group"><label htmlFor="full-name">Full Name <b>*</b></label><input ref={el=>{inputRefs.current.name=el}} id="full-name" autoComplete="name" inputMode="none" onFocus={()=>setActiveField('name')} placeholder="Your full name" value={lead.name} onChange={e=>update('name',e.target.value)}/>{errors.name&&<span className="field-error">{errors.name}</span>}</div>
+    <div className="form-group"><label htmlFor="whatsapp">WhatsApp Number <b>*</b></label><input ref={el=>{inputRefs.current.whatsapp=el}} id="whatsapp" type="tel" inputMode="none" onFocus={()=>setActiveField('whatsapp')} placeholder="08xx xxxx xxxx" value={lead.whatsapp} onChange={e=>update('whatsapp',e.target.value)}/>{errors.whatsapp&&<span className="field-error">{errors.whatsapp}</span>}</div></div>
+    <div className="form-row"><div className="form-group"><label htmlFor="email">Email <span>(Optional)</span></label><input ref={el=>{inputRefs.current.email=el}} id="email" type="text" inputMode="none" autoComplete="email" onFocus={()=>setActiveField('email')} placeholder="you@email.com" value={lead.email} onChange={e=>update('email',e.target.value)}/>{errors.email&&<span className="field-error">{errors.email}</span>}</div>
     <div className="form-group"><label htmlFor="budget">Budget Range <span>(Optional)</span></label><select id="budget" value={lead.budget} onChange={e=>update('budget',e.target.value)}>{BUDGETS.map(x=><option key={x.value} value={x.value}>{x.label}</option>)}</select></div></div>
     <div className="form-group timeline"><label>When are you planning to buy? <b>*</b></label><div className="timeline-options">{TIMELINES.map(t=><button key={t.value} type="button" onClick={()=>update('timeline',t.value)} className={lead.timeline===t.value?'active':''}>{t.label}</button>)}</div>{errors.timeline&&<span className="field-error">{errors.timeline}</span>}</div>
     <label className="consent-row"><input type="checkbox" checked={lead.consent} onChange={e=>update('consent',e.target.checked)}/><span>I agree to the collection and use of my information for personalized property recommendations and follow-up by the sales team. <a href="https://www.sinarmasland.com/id/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy <ArrowUpRight size={12}/></a></span></label>{errors.consent&&<span className="field-error">{errors.consent}</span>}
     {DEMO&&<p className="demo-notice"><Info size={17}/> Demo preview: data entered is not transmitted or saved. Use sample contact details when testing.</p>}
     {error&&<div role="alert" className="submit-error">{error}</div>}
     <div className="lead-form-footer"><button className="back-button" type="button" onClick={onBack}><ArrowLeft size={19}/> Back</button><button type="submit" disabled={busy} className="reveal-button">{busy?'Saving…':'Reveal My Results'} <ArrowUpRight size={22}/></button></div>
-   </form></div></div></div>;
+   </form></div></div>{activeField&&<div className="keyboard-dock" role="group" aria-label={`On-screen keyboard for ${fieldNames[activeField]}`} onPointerDown={e=>e.preventDefault()}>
+    <div className="keyboard-heading"><span><Sparkles size={16}/> ENTER YOUR {fieldNames[activeField].toUpperCase()}</span><button type="button" onClick={()=>{inputRefs.current[activeField]?.blur();setActiveField(null)}}>Done <Check size={17}/></button></div><div className="keyboard-preview" aria-live="polite">{lead[activeField]||`Tap the keys to enter your ${fieldNames[activeField].toLowerCase()}`}</div>
+    <div className={`keyboard-keys ${activeField==='whatsapp'?'numeric':''}`}>{rows.map((row,i)=><div className="keyboard-row" key={i}>{Array.from(row).map((character,j)=><button type="button" key={`${character}-${j}`} onClick={()=>keyboardInput(shift?character.toUpperCase():character)}>{shift?character.toUpperCase():character}</button>)}</div>)}
+     <div className="keyboard-row keyboard-actions">{activeField!=='whatsapp'&&<><button type="button" onClick={()=>setShift(!shift)} aria-pressed={shift}>⇧</button><button type="button" onClick={()=>setSymbols(!symbols)}>{symbols?'ABC':'?123'}</button><button type="button" onClick={()=>keyboardInput('@')}>@</button><button type="button" className="keyboard-space" onClick={()=>keyboardInput(' ')}>Space</button><button type="button" onClick={()=>keyboardInput('.')}>.</button></>}<button type="button" onClick={()=>keyboardInput('backspace')} aria-label="Backspace">⌫</button></div>
+    </div></div>}</div>;
 }
 function MatchCard({rec,rank,onExplore}:{rec:Recommendation;rank:number;onExplore:()=>void}){
  const {property}=rec;
@@ -201,9 +221,10 @@ export default function Home(){
  const [message,setMessage]=useState('');
  const [secondsRemaining,setSecondsRemaining]=useState(0);
  const lastInteraction=useRef(Date.now());
+ const submission=useRef(0);
  const notify=(text:string)=>{setMessage(text);setTimeout(()=>setMessage(''),3600)};
  const updateAnswers=(patch:Partial<Answers>)=>setAnswers(a=>({...a,...patch}));
- const reset=useCallback(()=>{setStep(0);setAnswers({...EMPTY_ANSWERS,priorities:{},destinations:[]});setLead({...EMPTY_LEAD});setRecommendations([]);setErrors({});setLeadError('');setSelectedProperty(null);setContactVisible(false);setSessionId('');setInterested([]);setSecondsRemaining(0);lastInteraction.current=Date.now()},[]);
+ const reset=useCallback(()=>{submission.current++;setBusy(false);setStep(0);setAnswers({...EMPTY_ANSWERS,priorities:{},destinations:[]});setLead({...EMPTY_LEAD});setRecommendations([]);setErrors({});setLeadError('');setSelectedProperty(null);setContactVisible(false);setSessionId('');setInterested([]);setSecondsRemaining(0);lastInteraction.current=Date.now()},[]);
  useEffect(()=>{
   const id=setInterval(()=>{if(step===0||contactVisible||selectedProperty)return;const elapsed=Date.now()-lastInteraction.current;setSecondsRemaining(elapsed>=INACTIVITY_MS-WARNING_MS?Math.max(0,Math.ceil((INACTIVITY_MS-elapsed)/1000)):0);if(elapsed>=INACTIVITY_MS)reset()},1000);
   return ()=>clearInterval(id);
@@ -216,12 +237,13 @@ export default function Home(){
  function toggleDest(id:string){setAnswers(a=>({...a,destinations:a.destinations.includes(id)?a.destinations.filter(v=>v!==id):[...a.destinations,id]}))}
  async function submitLead(){
   const validation=validateLead(lead);setErrors(validation);if(Object.keys(validation).length){notify('Mohon lengkapi data yang diperlukan.');return}
-  setBusy(true);setLeadError('');
-  if(DEMO){setRecommendations(generateRecommendations(answers,lead.budget));setStep(8);setBusy(false);activity();return}
-  try{const res=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,answers,lead})});const payload=await res.json();if(!res.ok||!payload.saved)throw Error(payload.error||'Gagal menyimpan lead.');
+  const requestId=++submission.current;setBusy(true);setLeadError('');setStep(9);activity();
+  const bumper=new Promise<void>(resolve=>setTimeout(resolve,3200));
+  try{if(DEMO){const results=generateRecommendations(answers,lead.budget);await bumper;if(requestId!==submission.current)return;setRecommendations(results);setStep(8);activity();return}
+   const res=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,answers,lead})});const payload=await res.json();if(!res.ok||!payload.saved)throw Error(payload.error||'Gagal menyimpan lead.');
    const mapped:Recommendation[]=payload.recommendations.map((r:{propertyId:string;score:number;percentage:number;position:Recommendation['position'];breakdown:Recommendation['breakdown'];reasons:string[]})=>({...r,property:PROPERTIES.find(p=>p.id===r.propertyId)!})).filter((r:Recommendation)=>!!r.property);
-   setRecommendations(mapped);setStep(8);activity();
-  }catch(e){setLeadError(e instanceof Error?e.message:'Network error. Please try again.')}finally{setBusy(false)}
+   await bumper;if(requestId!==submission.current)return;setRecommendations(mapped);setStep(8);activity();
+  }catch(e){if(requestId===submission.current){setLeadError(e instanceof Error?e.message:'Network error. Please try again.');setStep(7);activity()}}finally{if(requestId===submission.current)setBusy(false)}
  }
  async function trackEvent(kind:'explored'|'selected'|'contact_sales',propertyId?:string){if(DEMO)return;try{await fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,kind,propertyId})})}catch{/* nonblocking */}}
  function explore(p:Property){setSelectedProperty(p);trackEvent('explored',p.id)}
@@ -246,6 +268,7 @@ export default function Home(){
      </StageFrame>
    </motion.div>}
    {step===7&&<motion.div key="lead" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} transition={{duration:.25}}><LeadScreen lead={lead} setLead={setLead} errors={errors} error={leadError} submit={submitLead} busy={busy} onBack={back}/></motion.div>}
+   {step===9&&<motion.div key="matching" className="matching-screen" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,scale:1.03}} transition={{duration:.4}} role="status" aria-live="polite"><header className="matching-header"><Brand inverse/><span>YOUR DISCOVERY JOURNEY</span></header><div className="matching-content"><div className="matching-orbit" aria-hidden="true"><span className="orbit-ring orbit-ring-one"/><span className="orbit-ring orbit-ring-two"/><span className="orbit-dot orbit-dot-one"/><span className="orbit-dot orbit-dot-two"/><div className="matching-core"><Sparkles size={42}/></div></div><span className="matching-label">YOUR ANSWERS ARE IN</span><h1>Finding your<br/><em>perfect fit.</em></h1><p>We’re bringing your lifestyle and preferences together.</p><div className="matching-loader" aria-hidden="true"><span/></div><div className="matching-caption">CURATING YOUR PERSONAL MATCH <span>✦</span></div></div></motion.div>}
    {step===8&&<motion.div key="results" initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-15}} transition={{duration:.42}}><ResultsScreen answers={answers} recommendations={recommendations} onBack={()=>setStep(7)} onExplore={explore} onReset={reset} onContact={contact}/></motion.div>}
   </AnimatePresence>
   <AnimatePresence>{selectedProperty&&<PropertyModal property={selectedProperty} rec={recommendations.find(r=>r.property.id===selectedProperty.id)} onClose={()=>setSelectedProperty(null)} onSelect={()=>{if(selectedProperty)choose(selectedProperty)}} onContact={contact} selected={interested.includes(selectedProperty.id)}/>}</AnimatePresence>
